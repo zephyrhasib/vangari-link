@@ -1,7 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../models/HouseholdAccountModel.php';
-require_once __DIR__ . '/../../helpers/AccountValidation.php';
+require_once __DIR__ . '/../../validation/AccountValidation.php';
 
 class HouseholdController
 {

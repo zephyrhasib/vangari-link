@@ -42,7 +42,7 @@ class HouseholdAccountModel
         $stmt = $conn->prepare($sql);
         if (!$stmt) return true;
 
-        // ORDER: email, phone, id
+         
         $stmt->bind_param("ssi", $email, $phone, $id);
         $stmt->execute();
 
@@ -57,7 +57,7 @@ class HouseholdAccountModel
     {
         $conn = $this->db();
 
-        // updates ONLY these 4 columns
+         
         $sql = "UPDATE users
                 SET name = ?, area = ?, phone = ?, email = ?
                 WHERE id = ? AND role = 'seller'
@@ -66,7 +66,7 @@ class HouseholdAccountModel
         $stmt = $conn->prepare($sql);
         if (!$stmt) return false;
 
-        // ORDER MUST MATCH: name, area, phone, email, id
+         
         $stmt->bind_param("ssssi", $name, $area, $phone, $email, $id);
 
         $ok = $stmt->execute();
@@ -86,7 +86,7 @@ class HouseholdAccountModel
     {
         $conn = $this->db();
 
-        // updates ONLY password_hash
+         
         $sql = "UPDATE users
                 SET password_hash = ?
                 WHERE id = ? AND role = 'seller'
@@ -95,7 +95,7 @@ class HouseholdAccountModel
         $stmt = $conn->prepare($sql);
         if (!$stmt) return false;
 
-        // ORDER: hash, id
+         
         $stmt->bind_param("si", $newPasswordHash, $id);
 
         $ok = $stmt->execute();
