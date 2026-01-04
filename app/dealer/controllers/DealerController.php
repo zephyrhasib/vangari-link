@@ -1,7 +1,10 @@
 <?php
 
-require_once __DIR__ . '/../models/DealerAccountModel.php';
+require_once __DIR__ . '/../../validation/PriceValidation.php';
 require_once __DIR__ . '/../../validation/AccountValidation.php';
+require_once __DIR__ . '/../models/DealerPriceModel.php';
+require_once __DIR__ . '/../models/DealerAccountModel.php';
+
 
 class DealerController
 {
@@ -135,7 +138,73 @@ class DealerController
     public function manage_prices()
     {
         $this->requireBuyer();
+        $model = new DealerPriceModel();
+        $dealerId = (int)$_SESSION['user_id'];
+
+        $rows = $model->getManagePriceRows($dealerId);
+        $alreadySubmittedToday = $model->hasSubmittedToday($dealerId);
+
+        $flash = $_SESSION['flash'] ?? null;
+        unset($_SESSION['flash']);
+
+        $errors = $_SESSION['errors'] ?? null;
+        unset($_SESSION['errors']);
+
+        $oldPrices = $_SESSION['old_prices'] ?? [];
+        unset($_SESSION['old_prices']);
         require_once __DIR__ . '/../views/manage_prices.php';
+    }
+
+
+    public function save_prices()
+    {
+        $this->requireBuyer();
+        $model = new DealerPriceModel();
+        $dealerId = (int)$_SESSION['user_id'];
+
+        $postedPrices = $_POST['prices'] ?? [];
+
+        if ($model->hasSubmittedToday($dealerId)) {
+            $_SESSION['errors'] = [
+                "You already submitted prices today. Only one submission per day is allowed."
+            ];
+            $_SESSION['old_prices'] = $postedPrices;
+
+            header("Location: index.php?url=dealer/manage_prices");
+            exit;
+        }
+
+        $referenceRows = $model->getManagePriceRows($dealerId);
+
+        [$cleanPrices, $errors] =
+            PriceValidation::validateDealerPrices($postedPrices, $referenceRows, 5.0);
+
+        if (!empty($errors)) {
+            $_SESSION['errors'] = $errors;
+            $_SESSION['old_prices'] = $postedPrices;
+
+            header("Location: index.php?url=dealer/manage_prices");
+            exit;
+        }
+
+        if (empty($cleanPrices)) {
+            $_SESSION['errors'] = ["Please enter at least one price before saving."];
+            $_SESSION['old_prices'] = $postedPrices;
+
+            header("Location: index.php?url=dealer/manage_prices");
+            exit;
+        }
+
+        $ok = $model->insertDealerPricesOnce($dealerId, $cleanPrices);
+
+        $_SESSION['flash'] = $ok
+            ? "Prices submitted successfully for today."
+            : "Failed to submit prices.";
+
+        unset($_SESSION['old_prices']);
+
+        header("Location: index.php?url=dealer/manage_prices");
+        exit;
     }
 
     public function manage_requests()
