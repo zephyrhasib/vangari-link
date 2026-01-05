@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/../models/HouseholdAccountModel.php';
 require_once __DIR__ . '/../../validation/AccountValidation.php';
+require_once __DIR__ . '/../models/PriceModel.php';
 
 class HouseholdController
 {
@@ -140,6 +141,8 @@ class HouseholdController
     public function check_prices()
     {
         $this->requireSeller();
+        $model = new PriceModel();
+        $rows = $model->getTodayAndYesterdayPrices();
         require_once __DIR__ . '/../views/check_prices.php';
     }
 
