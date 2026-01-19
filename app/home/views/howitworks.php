@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>How It Works - Vangari-Link</title>
-  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="home/css/style.css" />
 </head>
 <body>
 

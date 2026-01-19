@@ -6,7 +6,7 @@
   <title>Vangari-Link</title>
 
 
-  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="home/css/style.css" />
 </head>
 <body>
 

@@ -10,10 +10,10 @@ $user   = $user ?? [];
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dealer Account</title>
 
-  <link rel="stylesheet" href="css/style.css" />
-  <link rel="stylesheet" href="css/forms.css" />
+  <link rel="stylesheet" href="dealer/css/style.css" />
+  <link rel="stylesheet" href="dealer/css/forms.css" />
 
-  <script src="js/AccountValidation.js" defer></script>
+  <script src="dealer/js/AccountValidation.js" defer></script>
 </head>
 <body>
 
