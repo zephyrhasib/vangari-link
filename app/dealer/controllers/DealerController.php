@@ -4,9 +4,9 @@ require_once __DIR__ . '/../../validation/PriceValidation.php';
 require_once __DIR__ . '/../../validation/AccountValidation.php';
 require_once __DIR__ . '/../models/DealerPriceModel.php';
 require_once __DIR__ . '/../models/DealerAccountModel.php';
-
 require_once __DIR__ . '/../../validation/ProfileImageValidation.php';
 require_once __DIR__ . '/../../models/ProfileImageModel.php';
+require_once __DIR__ . '/../models/ManageRequestModel.php';
 
 
 class DealerController
@@ -210,11 +210,127 @@ class DealerController
         exit;
     }
 
+
+    //functions for managing pickup requests
     public function manage_requests()
     {
         $this->requireBuyer();
         require_once __DIR__ . '/../views/manage_requests.php';
     }
+
+    public function manage_requests_data()
+    {
+        header('Content-Type: application/json; charset=utf-8');
+
+        if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'buyer') {
+            echo json_encode(['success' => false, 'errors' => ['Access denied.']]);
+            exit;
+        }
+
+        $buyerId = (int)$_SESSION['user_id'];
+        $model = new ManageRequestModel();
+
+        $buyerInfo = $model->getBuyerInfo($buyerId);
+        if (!$buyerInfo) {
+            echo json_encode(['success' => false, 'errors' => ['Buyer profile not found.']]);
+            exit;
+        }
+
+        $pending = $model->getPendingRequestsByArea($buyerInfo['area']);
+        $myOrders = $model->getMyAcceptedRequests($buyerId);
+
+        echo json_encode([
+            'success' => true,
+            'pending' => $pending,
+            'myOrders' => $myOrders,
+            'area' => $buyerInfo['area']
+        ]);
+        exit;
+    }
+
+
+    private function requireBuyerPostAccess()
+    {
+        if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'buyer') {
+            echo json_encode(['success' => false, 'errors' => ['Access denied.']]);
+            exit;
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'errors' => ['Invalid request method.']]);
+            exit;
+        }
+    }
+
+    public function accept_request()
+    {
+        header('Content-Type: application/json; charset=utf-8');
+
+        $this->requireBuyerPostAccess();
+
+        $requestId = (int)($_POST['request_id'] ?? 0);
+        if ($requestId <= 0) {
+            echo json_encode(['success' => false, 'errors' => ['Invalid request.']]);
+            exit;
+        }
+
+        $buyerId = (int)$_SESSION['user_id'];
+        $model = new ManageRequestModel();
+
+        $ok = $model->acceptRequest($requestId, $buyerId);
+
+        if (!$ok) {
+            echo json_encode(['success' => false, 'errors' => ['This request is no longer available.']]);
+            exit;
+        }
+
+        echo json_encode(['success' => true, 'message' => 'Request accepted.']);
+        exit;
+    }
+
+    public function mark_dispatched()
+    {
+        header('Content-Type: application/json; charset=utf-8');
+
+        $this->requireBuyerPostAccess();
+
+        $requestId = (int)($_POST['request_id'] ?? 0);
+        $buyerId = (int)$_SESSION['user_id'];
+
+        $model = new ManageRequestModel();
+        $ok = $model->markDispatched($requestId, $buyerId);
+
+        if (!$ok) {
+            echo json_encode(['success' => false, 'errors' => ['Cannot update status.']]);
+            exit;
+        }
+
+        echo json_encode(['success' => true, 'message' => 'Marked as dispatched.']);
+        exit;
+    }
+
+
+    public function mark_collected()
+    {
+        header('Content-Type: application/json; charset=utf-8');
+
+        $this->requireBuyerPostAccess();
+
+        $requestId = (int)($_POST['request_id'] ?? 0);
+        $buyerId = (int)$_SESSION['user_id'];
+
+        $model = new ManageRequestModel();
+        $ok = $model->markCollected($requestId, $buyerId);
+
+        if (!$ok) {
+            echo json_encode(['success' => false, 'errors' => ['Cannot update status.']]);
+            exit;
+        }
+
+        echo json_encode(['success' => true, 'message' => 'Marked as collected.']);
+        exit;
+    }
+
 
 
 
