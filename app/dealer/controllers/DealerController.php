@@ -5,6 +5,9 @@ require_once __DIR__ . '/../../validation/AccountValidation.php';
 require_once __DIR__ . '/../models/DealerPriceModel.php';
 require_once __DIR__ . '/../models/DealerAccountModel.php';
 
+require_once __DIR__ . '/../../validation/ProfileImageValidation.php';
+require_once __DIR__ . '/../../models/ProfileImageModel.php';
+
 
 class DealerController
 {
@@ -211,5 +214,82 @@ class DealerController
     {
         $this->requireBuyer();
         require_once __DIR__ . '/../views/manage_requests.php';
+    }
+
+
+
+
+
+
+
+
+
+
+
+    // functions for profile photo upload
+    public function upload_photo()
+    {
+        $this->requireBuyer();
+
+        $flash = $_SESSION['flash'] ?? '';
+        unset($_SESSION['flash']);
+
+        $errors = $_SESSION['errors'] ?? [];
+        unset($_SESSION['errors']);
+
+        require_once __DIR__ . '/../views/upload_photo.php';
+    }
+
+    public function save_photo()
+    {
+        $this->requireBuyer();
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header("Location: index.php?url=dealer/upload_photo");
+            exit;
+        }
+
+        list($errors, $clean) = validateProfileImageUpload($_FILES['profile_pic'] ?? []);
+
+        if (!empty($errors)) {
+            $_SESSION['errors'] = $errors;
+            header("Location: index.php?url=dealer/upload_photo");
+            exit;
+        }
+
+        $userId = (int)$_SESSION['user_id'];
+        $ext = $clean['ext'];
+
+        $newName = "profile_" . $userId . "_" . time() . "." . $ext;
+
+        $uploadDir = __DIR__ . '/../../../public/uploads/';
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0777, true);
+        }
+
+        $targetPath = $uploadDir . $newName;
+        
+        if (!move_uploaded_file($_FILES['profile_pic']['tmp_name'], $targetPath)) {
+            $_SESSION['errors'] = ["Upload failed. Try again."];
+            header("Location: index.php?url=dealer/upload_photo");
+            exit;
+        }
+
+        $dbPath = "uploads/" . $newName;
+
+        $model = new ProfileImageModel();
+        $ok = $model->upsert($userId, $dbPath);
+
+        if (!$ok) {
+            $_SESSION['errors'] = ["Database update failed."];
+            header("Location: index.php?url=dealer/upload_photo");
+            exit;
+        }
+    
+        $_SESSION['profile_pic'] = $dbPath;
+        $_SESSION['flash'] = "Profile picture updated successfully.";
+
+        header("Location: index.php?url=dealer/dashboard");
+        exit;
     }
 }

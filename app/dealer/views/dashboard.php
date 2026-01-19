@@ -10,7 +10,20 @@
 
   <header>
     <h1>Buyer Dashboard</h1>
+
+    <?php $pic = $_SESSION['profile_pic'] ?? ''; ?>
+
+    <div class="center" style="margin: 15px 0;">
+      <?php if ($pic): ?>
+        <img src="<?php echo $pic; ?>"
+            style="width:90px; height:90px; border-radius:50%; object-fit:cover; border:2px solid #999;">
+      <?php else: ?>
+        <div style="width:90px; height:90px; border-radius:50%; border:2px solid #999; display:inline-block;"></div>
+      <?php endif; ?>
+    </div>
+
     <p>Welcome, <?php echo $_SESSION['name'] ?? ''; ?></p>
+
   </header>
 
   <main class="container">
@@ -20,6 +33,7 @@
         <li><a href="index.php?url=dealer/account">Manage your Account</a></li>
         <li><a href="index.php?url=dealer/manage_prices">Update Scrap Price</a></li>
         <li><a href="index.php?url=dealer/manage_requests">Manage Pickup Requests</a></li>
+        <li><a href="index.php?url=dealer/upload_photo">Upload Profile Picture</a></li>
       </ul>
 
       <div class="center">
