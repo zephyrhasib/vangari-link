@@ -98,5 +98,51 @@ class PickupRequestModel
 
         return $row ?: null;
     }
+    
+
+    public function getSellerRequests(int $sellerId): array
+    {
+        $rows = [];
+
+        $sql = "SELECT
+                    pr.id,
+                    pr.estimated_weight,
+                    pr.contact_phone,
+                    pr.address,
+                    pr.desired_datetime,
+                    pr.seller_area,
+                    pr.status,
+                    pr.created_at,
+                    pr.accepted_at,
+                    pr.dispatched_at,
+                    pr.collected_at,
+
+                    si.name AS scrap_name,
+                    si.unit AS scrap_unit,
+
+                    u.shop_name AS buyer_shop,
+                    u.phone AS buyer_phone
+                FROM pickup_requests pr
+                JOIN scrap_items si ON si.id = pr.scrap_item_id
+                LEFT JOIN users u ON u.id = pr.buyer_id
+                WHERE pr.seller_id = ?
+                ORDER BY pr.created_at DESC";
+
+        $stmt = $this->db->prepare($sql);
+        if (!$stmt) return $rows;
+
+        $stmt->bind_param("i", $sellerId);
+        $stmt->execute();
+
+        $res = $stmt->get_result();
+        if ($res) {
+            while ($r = $res->fetch_assoc()) {
+                $rows[] = $r;
+            }
+        }
+
+        $stmt->close();
+        return $rows;
+    }
 
 }

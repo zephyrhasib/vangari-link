@@ -167,7 +167,7 @@ class HouseholdController
         require_once __DIR__ . '/../views/create_request.php';
     }
 
-public function submit_request()
+    public function submit_request()
     {
         header('Content-Type: application/json; charset=utf-8');
 
@@ -222,6 +222,31 @@ public function submit_request()
     {
         $this->requireSeller();
         require_once __DIR__ . '/../views/order_tracking.php';
+    }
+
+
+
+    public function order_tracking_data()
+    {
+        header('Content-Type: application/json; charset=utf-8');
+
+        if (!isset($_SESSION['user_id'])) {
+            echo json_encode(['success' => false, 'errors' => ['Please login first.']]);
+            exit;
+        }
+
+        if (($_SESSION['role'] ?? '') !== 'seller') {
+            echo json_encode(['success' => false, 'errors' => ['Access denied.']]);
+            exit;
+        }
+
+        $model = new PickupRequestModel();
+
+        $sellerId = (int)$_SESSION['user_id'];
+        $rows = $model->getSellerRequests($sellerId);
+
+        echo json_encode(['success' => true, 'rows' => $rows]);
+        exit;
     }
 
 }
