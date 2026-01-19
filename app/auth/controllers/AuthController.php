@@ -3,6 +3,8 @@
 require_once __DIR__ . '/../models/UserModel.php';
 require_once __DIR__ . '/../../validation/AuthValidation.php';
 
+require_once __DIR__ . '/../../models/ProfileImageModel.php';
+
 class AuthController
 {
     public function login()
@@ -38,6 +40,9 @@ class AuthController
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['role'] = $user['role'];
         $_SESSION['name'] = $user['name'];
+
+        $imgModel = new ProfileImageModel();
+        $_SESSION['profile_pic'] = $imgModel->getByUserId((int)$user['id']) ?? '';
 
         if ($user['role'] === 'seller') {
             header("Location: index.php?url=household/dashboard");
