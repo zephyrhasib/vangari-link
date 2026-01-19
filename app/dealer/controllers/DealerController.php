@@ -24,12 +24,40 @@ class DealerController
         }
     }
 
+    private function requireBuyerPostAccess()
+    {
+        if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'buyer') {
+            echo json_encode(['success' => false, 'errors' => ['Access denied.']]);
+            exit;
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'errors' => ['Invalid request method.']]);
+            exit;
+        }
+    }
+
+    private function requireJsonHeader()
+    {
+        header('Content-Type: application/json; charset=utf-8');
+    }
+
+    private function requireBuyerJson()
+    {
+        if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'buyer') {
+            echo json_encode(['success' => false, 'errors' => ['Access denied.']]);
+            exit;
+        }
+    }
+
+    //functions for dashboard
     public function dashboard()
     {
         $this->requireBuyer();
         require_once __DIR__ . '/../views/dashboard.php';
     }
 
+    //functions for account management
     public function account()
     {
         $this->requireBuyer();
@@ -138,6 +166,8 @@ class DealerController
         exit;
     }
 
+
+    //functions for managing prices
     public function manage_prices()
     {
         $this->requireBuyer();
@@ -209,7 +239,7 @@ class DealerController
         header("Location: index.php?url=dealer/manage_prices");
         exit;
     }
-
+    
 
     //functions for managing pickup requests
     public function manage_requests()
@@ -220,12 +250,9 @@ class DealerController
 
     public function manage_requests_data()
     {
-        header('Content-Type: application/json; charset=utf-8');
+        $this->requireJsonHeader();
 
-        if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'buyer') {
-            echo json_encode(['success' => false, 'errors' => ['Access denied.']]);
-            exit;
-        }
+        $this->requireBuyerJson();
 
         $buyerId = (int)$_SESSION['user_id'];
         $model = new ManageRequestModel();
@@ -248,23 +275,9 @@ class DealerController
         exit;
     }
 
-
-    private function requireBuyerPostAccess()
-    {
-        if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'buyer') {
-            echo json_encode(['success' => false, 'errors' => ['Access denied.']]);
-            exit;
-        }
-
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            echo json_encode(['success' => false, 'errors' => ['Invalid request method.']]);
-            exit;
-        }
-    }
-
     public function accept_request()
     {
-        header('Content-Type: application/json; charset=utf-8');
+        $this->requireJsonHeader();
 
         $this->requireBuyerPostAccess();
 
@@ -290,7 +303,7 @@ class DealerController
 
     public function mark_dispatched()
     {
-        header('Content-Type: application/json; charset=utf-8');
+        $this->requireJsonHeader();
 
         $this->requireBuyerPostAccess();
 
@@ -312,7 +325,7 @@ class DealerController
 
     public function mark_collected()
     {
-        header('Content-Type: application/json; charset=utf-8');
+        $this->requireJsonHeader();
 
         $this->requireBuyerPostAccess();
 
@@ -331,15 +344,47 @@ class DealerController
         exit;
     }
 
+    //functions for order history
+    public function order_history()
+    {
+        $this->requireBuyer();
+        require_once __DIR__ . '/../views/order_history.php';
+    }
 
+    public function order_history_data()
+    {
+        $this->requireJsonHeader();
 
+        $this->requireBuyerJson();
 
+        $buyerId = (int)$_SESSION['user_id'];
 
+        $limit = (int)($_GET['limit'] ?? 2);
+        $offset = (int)($_GET['offset'] ?? 0);
 
+        
+        if ($limit <= 0) $limit = 2;
+        if ($limit > 20) $limit = 20;
+        if ($offset < 0) $offset = 0;
 
+        require_once __DIR__ . '/../models/ManageRequestModel.php';
+        $model = new ManageRequestModel();
 
+        $total = $model->countHistory($buyerId);
+        $rows = $model->getHistory($buyerId, $limit, $offset);
 
+        $newOffset = $offset + count($rows);
+        $hasMore = ($newOffset < $total);
 
+        echo json_encode([
+            'success' => true,
+            'rows' => $rows,
+            'total' => $total,
+            'newOffset' => $newOffset,
+            'hasMore' => $hasMore
+        ]);
+        exit;
+    }
 
 
     // functions for profile photo upload
