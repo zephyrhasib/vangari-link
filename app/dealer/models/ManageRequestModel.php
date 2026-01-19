@@ -156,4 +156,64 @@ class ManageRequestModel
     }
 
 
+
+    public function countHistory(int $buyerId): int
+    {
+        $sql = "SELECT COUNT(*) AS total
+                FROM pickup_requests
+                WHERE buyer_id = ? AND status = 'collected'";
+
+        $stmt = $this->db->prepare($sql);
+        if (!$stmt) return 0;
+
+        $stmt->bind_param("i", $buyerId);
+        $stmt->execute();
+
+        $res = $stmt->get_result();
+        $row = $res ? $res->fetch_assoc() : null;
+
+        $stmt->close();
+
+        return (int)($row['total'] ?? 0);
+    }
+
+    public function getHistory(int $buyerId, int $limit, int $offset): array
+    {
+        $rows = [];
+
+        $sql = "SELECT
+                    pr.id,
+                    pr.estimated_weight,
+                    pr.address,
+                    pr.desired_datetime,
+                    pr.status,
+                    pr.collected_at,
+                    si.name AS scrap_name,
+                    si.unit AS scrap_unit,
+                    u.name AS seller_name,
+                    u.phone AS seller_phone
+                FROM pickup_requests pr
+                JOIN scrap_items si ON si.id = pr.scrap_item_id
+                JOIN users u ON u.id = pr.seller_id
+                WHERE pr.buyer_id = ?
+                AND pr.status = 'collected'
+                ORDER BY pr.collected_at DESC
+                LIMIT ? OFFSET ?";
+
+        $stmt = $this->db->prepare($sql);
+        if (!$stmt) return $rows;
+
+        $stmt->bind_param("iii", $buyerId, $limit, $offset);
+        $stmt->execute();
+
+        $res = $stmt->get_result();
+        if ($res) {
+            while ($r = $res->fetch_assoc()) $rows[] = $r;
+        }
+
+        $stmt->close();
+        return $rows;
+    }
+
+
 }

@@ -33,6 +33,7 @@
         <li><a href="index.php?url=dealer/account">Manage your Account</a></li>
         <li><a href="index.php?url=dealer/manage_prices">Update Scrap Price</a></li>
         <li><a href="index.php?url=dealer/manage_requests">Manage Pickup Requests</a></li>
+        <li><a href="index.php?url=dealer/order_history">View Order History</a></li>
         <li><a href="index.php?url=dealer/upload_photo">Upload Profile Picture</a></li>
       </ul>
 
