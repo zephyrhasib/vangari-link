@@ -3,6 +3,8 @@
 require_once __DIR__ . '/../models/HouseholdAccountModel.php';
 require_once __DIR__ . '/../../validation/AccountValidation.php';
 require_once __DIR__ . '/../models/PriceModel.php';
+require_once __DIR__ . '/../../validation/PickupRequestValidation.php';
+require_once __DIR__ . '/../models/PickupRequestModel.php';
 
 class HouseholdController
 {
@@ -147,11 +149,74 @@ class HouseholdController
     }
 
 
-    public function create_request()
+     public function create_request()
     {
-        $this->requireSeller();
+         $this->requireSeller();
+      
+
+        $model = new PickupRequestModel();
+
+        $sellerId = (int)$_SESSION['user_id'];
+
+        $items = $model->getActiveScrapItems();
+
+        $info = $model->getSellerInfo($sellerId);
+        $prefillPhone = $info['phone'] ?? '';
+        $sellerArea   = $info['area'] ?? '';
+
         require_once __DIR__ . '/../views/create_request.php';
     }
+
+public function submit_request()
+    {
+        header('Content-Type: application/json; charset=utf-8');
+
+         $this->requireSeller();
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'errors' => ['Invalid request method.']]);
+            exit;
+        }
+
+        list($errors, $clean) = validatePickupRequest($_POST);
+
+        if (!empty($errors)) {
+            echo json_encode(['success' => false, 'errors' => $errors]);
+            exit;
+        }
+
+        $sellerId = (int)$_SESSION['user_id'];
+
+        $model = new PickupRequestModel();
+        $sellerArea = $model->getSellerArea($sellerId);
+
+        if (!$sellerArea) {
+            echo json_encode(['success' => false, 'errors' => ['Your area is missing. Update your profile area first.']]);
+            exit;
+        }
+
+        $desiredMysql = str_replace('T', ' ', $clean['desired_datetime']) . ':00';
+
+        $ok = $model->create(
+        $sellerId,
+        $sellerArea,
+        (int)$clean['scrap_item_id'],
+        (float)$clean['estimated_weight'],
+        $clean['contact_phone'],
+        $clean['address'],
+        $desiredMysql
+        );
+
+
+        if (!$ok) {
+            echo json_encode(['success' => false, 'errors' => ['Failed to submit request. Try again.']]);
+            exit;
+        }
+
+        echo json_encode(['success' => true, 'message' => 'Pickup request submitted successfully.']);
+        exit;
+    }
+
 
     public function order_tracking()
     {
