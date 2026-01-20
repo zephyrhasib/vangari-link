@@ -28,7 +28,6 @@ class ProfileImageModel
 
     public function upsert(int $userId, string $imagePath): bool
     {
-        // Insert if not exists, else update (simple)
         $existing = $this->getByUserId($userId);
 
         if ($existing) {

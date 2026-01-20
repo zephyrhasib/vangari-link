@@ -430,6 +430,7 @@ class DealerController
 
         $targetPath = $uploadDir . $newName;
         
+    
         if (!move_uploaded_file($_FILES['profile_pic']['tmp_name'], $targetPath)) {
             $_SESSION['errors'] = ["Upload failed. Try again."];
             header("Location: index.php?url=dealer/upload_photo");
