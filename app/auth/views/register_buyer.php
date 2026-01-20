@@ -1,5 +1,5 @@
 <?php
-$areas = ["Select Area", "Dhaka", "Chattogram", "Khulna", "Rajshahi", "Sylhet", "Barishal", "Rangpur", "Mymensingh"];
+ $areas = require __DIR__ . '/../../config/dhaka_areas.php';
 
 $errors = $errors ?? [];
 $old = $old ?? [];
