@@ -8,7 +8,20 @@ require_once __DIR__ . '/../../models/ProfileImageModel.php';
 class AuthController
 {
     public function login()
-    {
+    {   
+
+        if (isset($_SESSION['user_id'], $_SESSION['role'])) {
+            if ($_SESSION['role'] === 'seller') {
+                header("Location: index.php?url=household/dashboard");
+                exit;
+            }
+            if ($_SESSION['role'] === 'buyer') {
+                header("Location: index.php?url=dealer/dashboard");
+                exit;
+            }
+        }
+
+
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             require_once __DIR__ . '/../views/login.php';
             return;
@@ -44,6 +57,17 @@ class AuthController
         $imgModel = new ProfileImageModel();
         $_SESSION['profile_pic'] = $imgModel->getByUserId((int)$user['id']) ?? '';
 
+
+        if (!empty($_POST['remember'])) {
+            $expires = time() + (30 * 24 * 60 * 60); 
+
+            setcookie('remember_user_id', (string)$user['id'], $expires, '/');
+            setcookie('remember_role', $user['role'], $expires, '/');
+            setcookie('remember_name', $user['name'], $expires, '/');
+            setcookie('remember_profile_pic', $_SESSION['profile_pic'] ?? '', $expires, '/');
+        }
+
+        
         if ($user['role'] === 'seller') {
             header("Location: index.php?url=household/dashboard");
             exit;
@@ -146,7 +170,12 @@ class AuthController
     }
 
     public function logout()
-    {
+    {   
+        setcookie('remember_user_id', '', time() - 3600, '/');
+        setcookie('remember_role', '', time() - 3600, '/');
+        setcookie('remember_name', '', time() - 3600, '/');
+        setcookie('remember_profile_pic', '', time() - 3600, '/');
+
         session_unset();
         session_destroy();
         header("Location: index.php");
