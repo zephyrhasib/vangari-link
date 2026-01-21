@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="household/css/style.css" />
   <link rel="stylesheet" href="household/css/forms.css" />
   <link rel="stylesheet" href="household/css/tables.css" />
+  
   <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 
 </head>

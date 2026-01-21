@@ -1,12 +1,12 @@
 <?php
 
 require_once __DIR__ . '/../models/HouseholdAccountModel.php';
-require_once __DIR__ . '/../../validation/AccountValidation.php';
 require_once __DIR__ . '/../models/PriceModel.php';
-require_once __DIR__ . '/../../validation/PickupRequestValidation.php';
 require_once __DIR__ . '/../models/PickupRequestModel.php';
-require_once __DIR__ . '/../../validation/ProfileImageValidation.php';
 require_once __DIR__ . '/../../models/ProfileImageModel.php';
+require_once __DIR__ . '/../../validation/AccountValidation.php';
+require_once __DIR__ . '/../../validation/PickupRequestValidation.php';
+require_once __DIR__ . '/../../validation/ProfileImageValidation.php';
 
 class HouseholdController
 {

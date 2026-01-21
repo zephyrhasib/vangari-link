@@ -1,9 +1,8 @@
 <?php
 
 require_once __DIR__ . '/../models/UserModel.php';
-require_once __DIR__ . '/../../validation/AuthValidation.php';
-
 require_once __DIR__ . '/../../models/ProfileImageModel.php';
+require_once __DIR__ . '/../../validation/AuthValidation.php';
 
 class AuthController
 {

@@ -1,7 +1,8 @@
 <?php
- $areas = require __DIR__ . '/../../config/dhaka_areas.php';
-$flash  = $flash ?? '';
-$user   = $user ?? [];
+
+  $areas = require __DIR__ . '/../../config/dhaka_areas.php';
+  $flash  = $flash ?? '';
+  $user   = $user ?? [];
 ?>
 <!DOCTYPE html>
 <html lang="en">

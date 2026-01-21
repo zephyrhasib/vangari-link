@@ -2,7 +2,6 @@
 <?php
 session_start();
 
-
 if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_user_id'])) {
     $_SESSION['user_id'] = (int)$_COOKIE['remember_user_id'];
     $_SESSION['role'] = $_COOKIE['remember_role'] ?? '';

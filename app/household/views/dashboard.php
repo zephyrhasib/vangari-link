@@ -8,7 +8,8 @@
 </head>
 <body>
 
-   <header>
+  <header>
+    
   <h1>Seller Dashboard</h1>
 
   <?php $pic = $_SESSION['profile_pic'] ?? ''; ?>
@@ -23,11 +24,14 @@
   </div>
 
   <p>Welcome, <?php echo $_SESSION['name'] ?? ''; ?></p>
-</header>
+
+  </header>
 
   <main class="container">
     <div class="box" style="width: 90%; margin: auto;">
+      
       <h2>Menu</h2>
+      
       <ul>
         <li><a href="index.php?url=household/account">Manage your Account</a></li>
         <li><a href="index.php?url=household/check_prices">Check Current Market Prices</a></li>
@@ -39,6 +43,7 @@
       <div class="center">
         <a class="btn" href="index.php?url=auth/logout">Logout</a>
       </div>
+
     </div>
   </main>
 
