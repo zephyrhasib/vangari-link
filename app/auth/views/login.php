@@ -41,15 +41,10 @@ $old = $old ?? [];
 
       <button type="submit">Login</button>
 
-
       <div class="form-group" style="margin-top: 10px;">
-        <label style="display:block; margin:10px 0;">
-          <input type="checkbox" name="remember" value="1">
-          Remember me
-        </label>
+        <input type="checkbox" name="remember" value="1" style="display:block; text-align:left; width:auto; margin-right:5px; float:left;">
+        <label style="display:block; margin:0;">Remember me</label>
      </div>
-
-     
     </form>
 
     <a class="back-link" href="index.php">Back to Home</a>

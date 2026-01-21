@@ -87,6 +87,7 @@
                     <input
                       class="input input-sm"
                       type="number"
+                      step="0.01"
                       name="prices[<?php echo $itemId; ?>]"
                       value="<?php echo $val; ?>"
                       placeholder="e.g. 12.00"
@@ -108,7 +109,7 @@
       </form>
 
       <p style="margin-top: 10px; color: #666;">
-        Rule: you can submit once per day. Input must be within ±5% of 7-day average.
+        Rule: you can submit once per day.
       </p>
    
   </main>

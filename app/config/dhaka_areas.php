@@ -10,6 +10,7 @@ return [
     'Mohammadpur',
     'Badda',
     'Motijheel',
+    'Rampura',
     'Ramna',
     'Tejgaon',
     'Khilgaon',
